@@ -1,5 +1,5 @@
 {
-  "updated_at": null,
+  "updated_at": "2026-09-07T21:59:56.437402+00:00",
   "questions": [
     {
       "id": "ussf153-2026-09-10-v1",
@@ -19,7 +19,6 @@
   "summaries": {
     "ussf153-2026-09-10-v1": {
       "n": 0,
-      "loss_n": 0,
       "go_votes": 0
     }
   },

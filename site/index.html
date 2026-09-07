@@ -1,36 +1,20 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CrowdLaunch</title>
-  <style>
-    body{font-family:system-ui,-apple-system,sans-serif;max-width:1100px;margin:0 auto;padding:32px;background:#0b1020;color:#eef2ff}
-    h1{font-size:2.3rem;margin-bottom:.3rem}.muted{color:#aab4d0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:28px 0}
-    .card{background:#151d33;border:1px solid #2b385d;border-radius:14px;padding:18px}.metric{font-size:2rem;font-weight:700}table{width:100%;border-collapse:collapse;background:#151d33;border-radius:12px;overflow:hidden}th,td{text-align:left;padding:12px;border-bottom:1px solid #2b385d}th{color:#aab4d0}.pill{padding:3px 8px;border:1px solid #53658d;border-radius:999px;font-size:.8rem}
-  </style>
-</head>
-<body>
-  <h1>CrowdLaunch</h1>
-  <p class="muted">Open launch evidence, manifest history and crowd probability forecasts.</p>
-  <div class="grid">
-    <div class="card"><div class="muted">Launches</div><div id="launchCount" class="metric">—</div></div>
-    <div class="card"><div class="muted">Attempts / windows</div><div id="attemptCount" class="metric">—</div></div>
-    <div class="card"><div class="muted">Failure / anomaly events</div><div id="failureCount" class="metric">—</div></div>
-    <div class="card"><div class="muted">Crowd forecasts</div><div class="metric">Coming next</div></div>
-  </div>
-  <h2>Latest launch records</h2>
-  <table><thead><tr><th>Mission</th><th>Vehicle</th><th>Planned / actual</th><th>Status</th></tr></thead><tbody id="launches"></tbody></table>
-<script>
-async function load(){
-  try{
-    const [launches,attempts,failures]=await Promise.all([
-      fetch('./data/launch.json').then(r=>r.json()),fetch('./data/launch_attempt.json').then(r=>r.json()),fetch('./data/failure_event.json').then(r=>r.json())]);
-    launchCount.textContent=launches.length;attemptCount.textContent=attempts.length;failureCount.textContent=failures.length;
-    const rows=[...launches].sort((a,b)=>String(b.actual_utc||b.planned_utc||'').localeCompare(String(a.actual_utc||a.planned_utc||''))).slice(0,12);
-    document.getElementById('launches').innerHTML=rows.map(x=>`<tr><td>${x.mission_name||'—'}</td><td>${x.vehicle_name||'—'}</td><td>${x.actual_utc||x.planned_utc||'—'}</td><td><span class="pill">${x.status||'unknown'}</span></td></tr>`).join('');
-  }catch(e){document.getElementById('launches').innerHTML='<tr><td colspan="4">Run scripts/export_public_data.py to generate site data.</td></tr>'}
-}
-load();
-</script>
-</body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Forecast launch readiness and explore public crowd estimates of payload loss."><title>CrowdLaunch · Launch forecasts</title><link rel="stylesheet" href="./style.css"><script src="./app.js" defer></script></head>
+<body><header><a class="brand" href="./">CrowdLaunch<span> / MISSION OUTLOOK</span></a><span class="badge">Research prototype</span></header>
+<main><section class="intro"><p class="eyebrow">YOUR CALL. THE CROWD’S PERSPECTIVE.</p><h1>Is this launch a go?</h1><p>Make your call, explain your reasoning, and help build a public launch-risk forecast.</p></section>
+<div id="loadStatus" role="status">Loading launch evidence…</div>
+<div id="workspace" hidden>
+<section class="mission"><div><label for="question">Forecast question</label><select id="question"></select></div><div><span class="eyebrow">FORECAST CLOSES · UTC</span><strong id="deadline"></strong><span id="questionState" class="badge"></span></div></section>
+<p id="scheduleNote" class="muted"></p>
+<div class="columns"><section class="panel"><div class="section-heading"><span class="step">01</span><h2>Your forecast</h2></div><p id="goDefinition"></p>
+<form id="forecastForm"><fieldset id="forecastFields"><legend class="sr-only">Launch forecast</legend><fieldset class="vote"><legend>Will it lift off in the forecast interval?</legend><label><input type="radio" name="vote" value="GO" required><span>GO <small>Expect liftoff</small></span></label><label><input type="radio" name="vote" value="NO-GO" required><span>NO-GO <small>Expect a delay or scrub</small></span></label></fieldset>
+<label for="p_go">Probability of liftoff <span class="unit">%</span></label><input id="p_go" type="number" min="0" max="100" step="0.1" placeholder="0–100" required><p class="hint">How likely is liftoff, regardless of your binary call?</p>
+<details><summary>Optional: estimate payload loss</summary><p id="lossDefinition"></p><label class="check"><input id="includeLoss" type="checkbox">Include my payload-loss estimates</label><div id="lossFields" hidden><label for="p_total_loss">Total loss probability, given liftoff (%)</label><input id="p_total_loss" type="number" min="0" max="100" step="0.1"><label for="p_partial_loss">Partial loss probability, given liftoff (%)</label><input id="p_partial_loss" type="number" min="0" max="100" step="0.1"><label for="partial_severity">Value lost if partial loss occurs (%)</label><input id="partial_severity" type="number" min="0" max="100" step="0.1"><p class="hint">Total + partial probability must not exceed 100%. Remaining probability means no physical payload loss.</p></div></details>
+<label for="reason">Why do you think so?</label><textarea id="reason" rows="3" minlength="10" maxlength="600" required placeholder="Weather, vehicle heritage, range conditions, or other evidence…"></textarea><label for="source_url">Evidence link <span class="muted">optional</span></label><input id="source_url" type="url" maxlength="300" placeholder="https://…">
+<label class="check"><input id="consent" type="checkbox" required>I understand my forecast, reasoning and GitHub username will be public.</label><button type="submit">Review & submit on GitHub ↗</button><p class="hint">GitHub sign-in required. The next page lets you review and publish your forecast. Opening it does not submit anything. Allow a few minutes for accepted input to appear.</p></fieldset><p id="formStatus" role="status"></p><a id="submissionLink" hidden target="_blank" rel="noopener noreferrer">Open your prepared submission ↗</a></form></section>
+<aside><section class="panel"><div class="section-heading"><span class="step">02</span><h2>The crowd’s call</h2></div><div id="crowdResults"></div><button id="refresh" class="secondary" type="button">Refresh crowd results</button><p id="freshness" class="hint"></p></section>
+<section class="panel estimate"><p class="eyebrow">EXPERIMENTAL · PAYLOAD LOSS</p><h2>From forecasts to risk</h2><p>A scrub is not a payload loss. These estimates keep launch probability and loss conditional on launch separate.</p><div id="lossResults"></div><label for="insuredValue">Illustrative payload value (USD)</label><input id="insuredValue" type="number" min="0" max="1000000000000" step="1000" value="100000000"><p id="moneyResult"></p><p class="hint">An uncalibrated crowd expectation, not an insurance quote. No policy terms, deductibles, capital, expenses or profit are included.</p></section></aside></div>
+<section class="panel"><h2>Forecast evidence & contributions</h2><p id="evidenceLink"></p><div id="contributions"></div></section>
+<section class="panel"><h2>Launch evidence archive</h2><p id="coverage" class="muted"></p><div class="table-scroll"><table><thead><tr><th>Mission</th><th>Vehicle</th><th>Date / UTC</th><th>Status</th></tr></thead><tbody id="launches"></tbody></table></div></section>
+<details class="method"><summary>How the crowd estimate works</summary><p>Each GitHub account gets one equally weighted forecast per question. The latest valid submission observed before the deadline counts. These are self-selected accounts, not verified independent experts. A range shows disagreement, not a confidence interval.</p><p>For each contributor who opts into loss estimates: conditional expected loss fraction = total loss probability + partial loss probability × partial severity. We average those individual results. Multiplying each by that contributor’s liftoff probability gives the expected physical payload loss during the specified interval. A postponement can move exposure to a later interval; it does not eliminate eventual mission risk.</p><p>Questions have fixed UTC intervals and close before that interval starts. A retargeted launch needs a new question. Source-backed outcomes can later score liftoff forecasts with the Brier score (lower is better). No skill weighting is applied yet.</p><p>To revise a forecast, create a new submission before the deadline. Editing after the deadline cannot replace an already recorded version. Maintainers can exclude spam or invalid contributions using the crowd-exclude label. Reasoning, usernames, submissions and snapshots are public; never include confidential or personal information.</p></details>
+</div></main><footer>CrowdLaunch · Open evidence. Explicit uncertainty.</footer></body></html>

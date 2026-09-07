@@ -1,0 +1,15 @@
+[
+  {
+    "id": "ussf153-2026-09-10-v1",
+    "launch_id": "sx-2026-09-10-ussf153",
+    "title": "USSF-153 · 10 September 2026",
+    "opens_at": "2026-09-07T00:00:00Z",
+    "closes_at": "2026-09-10T00:00:00Z",
+    "window_start": "2026-09-10T00:00:00Z",
+    "window_end": "2026-09-11T00:00:00Z",
+    "go_definition": "GO means liftoff occurs during 10 September UTC. NO-GO means no liftoff in that interval, including a scrub or delay. This is a forecasting question, not an operational launch recommendation.",
+    "loss_definition": "Conditional on liftoff during that UTC day: physical loss of the primary payload from liftoff through intended deployment. Total and partial loss are mutually exclusive; partial severity is the fraction of payload value lost if partial loss occurs. Booster recovery and later in-orbit operations are excluded.",
+    "schedule_note": "Based on the repository manifest as of 6 September 2026; this UTC day is the forecast interval, not a verified operator launch window. A changed date requires a new question ID.",
+    "resolution": null
+  }
+]

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CrowdLaunch</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;max-width:1100px;margin:0 auto;padding:32px;background:#0b1020;color:#eef2ff}
+    h1{font-size:2.3rem;margin-bottom:.3rem}.muted{color:#aab4d0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:28px 0}
+    .card{background:#151d33;border:1px solid #2b385d;border-radius:14px;padding:18px}.metric{font-size:2rem;font-weight:700}table{width:100%;border-collapse:collapse;background:#151d33;border-radius:12px;overflow:hidden}th,td{text-align:left;padding:12px;border-bottom:1px solid #2b385d}th{color:#aab4d0}.pill{padding:3px 8px;border:1px solid #53658d;border-radius:999px;font-size:.8rem}
+  </style>
+</head>
+<body>
+  <h1>CrowdLaunch</h1>
+  <p class="muted">Open launch evidence, manifest history and crowd probability forecasts.</p>
+  <div class="grid">
+    <div class="card"><div class="muted">Launches</div><div id="launchCount" class="metric">—</div></div>
+    <div class="card"><div class="muted">Attempts / windows</div><div id="attemptCount" class="metric">—</div></div>
+    <div class="card"><div class="muted">Failure / anomaly events</div><div id="failureCount" class="metric">—</div></div>
+    <div class="card"><div class="muted">Crowd forecasts</div><div class="metric">Coming next</div></div>
+  </div>
+  <h2>Latest launch records</h2>
+  <table><thead><tr><th>Mission</th><th>Vehicle</th><th>Planned / actual</th><th>Status</th></tr></thead><tbody id="launches"></tbody></table>
+<script>
+async function load(){
+  try{
+    const [launches,attempts,failures]=await Promise.all([
+      fetch('./data/launch.json').then(r=>r.json()),fetch('./data/launch_attempt.json').then(r=>r.json()),fetch('./data/failure_event.json').then(r=>r.json())]);
+    launchCount.textContent=launches.length;attemptCount.textContent=attempts.length;failureCount.textContent=failures.length;
+    const rows=[...launches].sort((a,b)=>String(b.actual_utc||b.planned_utc||'').localeCompare(String(a.actual_utc||a.planned_utc||''))).slice(0,12);
+    document.getElementById('launches').innerHTML=rows.map(x=>`<tr><td>${x.mission_name||'—'}</td><td>${x.vehicle_name||'—'}</td><td>${x.actual_utc||x.planned_utc||'—'}</td><td><span class="pill">${x.status||'unknown'}</span></td></tr>`).join('');
+  }catch(e){document.getElementById('launches').innerHTML='<tr><td colspan="4">Run scripts/export_public_data.py to generate site data.</td></tr>'}
+}
+load();
+</script>
+</body></html>

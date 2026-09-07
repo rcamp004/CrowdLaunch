@@ -130,3 +130,22 @@ columns, and rejects a missing database rather than creating an empty one. For a
 uncompressed database, pass `--db path/to/file.sqlite`; it is opened read-only.
 Deploy only `site/` when hosting is configured. Keep future proprietary underwriting
 values in a separate private database, never in the public compressed evidence file.
+
+### Featured launch interface
+
+The home page combines a cinematic featured-launch banner, selected mission details,
+a forecast-deadline countdown, data-derived summary counts, upcoming opportunity
+cards, the working forecast form, crowd distribution, and a searchable evidence
+archive. It responds to phone and desktop widths. No sample forecasts, live flight
+telemetry or invented success statistics are displayed.
+
+`site/assets/launch-hero.png` is AI-generated illustrative artwork, not a photograph
+of the featured mission. It was generated as an unbranded coastal rocket launch at
+dusk, with dark negative space for the headline. The page labels this explicitly.
+
+To add verified footage, set `question_id` and `video_url` in
+`site/data/featured.json`. Supported URLs are HTTPS YouTube watch URLs or youtu.be
+links with an 11-character video ID. The matching selected question gets a
+click-to-load privacy-enhanced YouTube embed. The player has no autoplay, unloads
+when closed, and is hidden for other questions. Until footage is linked, the hero
+links to the launch source for coverage. An embed does not imply a live mission.

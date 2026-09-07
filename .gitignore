@@ -3,3 +3,4 @@ __pycache__/
 data/*.sqlite
 site/data/*.json
 !site/data/crowd.json
+!site/data/featured.json
